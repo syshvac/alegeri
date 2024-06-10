@@ -1,5 +1,3 @@
-
-
 let map = L.map('map', {
     zoomSnap: 0,
     zomDelta: 5,
@@ -75,7 +73,6 @@ String.prototype.clear = function () {
 let geoJSON = null;
 let conturGeoJSON = null;
 
-
 function loadResults(alegeri) {
     window.results = {};
     document.querySelector('#loading').style.display = "flex";
@@ -109,7 +106,8 @@ function loadResults(alegeri) {
 
                         let fillColor = "#333333";
                         let weight = 0.3;
-                        let fillOpacity = 1;
+                        let fillOpacity = 0; // Set default to 0
+
                         if (county == "SR") {
                             countyCode = county;
                             if (alegeri.includes("locale")) {
@@ -124,81 +122,34 @@ function loadResults(alegeri) {
                         if (data.hasOwnProperty(countyCode)) {
                             if (data[countyCode].hasOwnProperty(name)) {
                                 let votes = sortByValues(data[countyCode][name].votes, 'votes');
-                                let index = 0;
-                                if (votes.length > 1 && document.querySelector('#toggleLocul2').checked == true) index = 1;
-                                fillColor = getPartyColor(votes[index].party);
-                                if (!window.results.hasOwnProperty(votes[index].party)) window.results[votes[index].party] = { name: votes[index].party, UAT: 0, votes: 0 };
-                                window.results[votes[index].party].UAT++;
-                                feature.properties.data = {
-                                    totalVoturi: votes.reduce((a, b) => a + b.votes, 0),
-                                }
-                                feature.properties.data.votes = votes.map(v => {
-                                    // window.results[votes[index].party].votes += v.votes;
-                                    v.percentage = (v.votes / feature.properties.data.totalVoturi * 100).toFixed(2);
-                                    v.procent = v.votes / feature.properties.data.totalVoturi;
-                                    return v;
-                                });
-                                for (const vote of votes) {
-                                    if (!window.results.hasOwnProperty(vote.party)) window.results[vote.party] = { name: vote.party, UAT: 0, votes: 0 };
-                                    window.results[vote.party].votes += vote.votes;
-                                }
-                                if (feature.properties.data.votes.length == 0) feature.properties.data.votes = [{ party: "N/A", votes: 0, name: "N/A" }];
-
-
-                            } else feature.properties.data = { ...emptyData };
-                        } else feature.properties.data = { ...emptyData };
-
-                        if (window.partideAlese.length == 1) {
-                            let index = 0;
-                            if (feature.properties.data.votes.length > 1 && document.querySelector('#toggleLocul2').checked == true) index = 1;
-                            if (window.partideAlese.includes(feature.properties.data.votes[index].party)) {
-                                fillOpacity = 1;
-                            } else fillOpacity = 0.2;
-                            if (document.querySelector('#prezentaProcent').checked == true) {
-                                fillColor = getPartyColor(window.partideAlese[0]);
-                                let partid = feature.properties.data.votes.find(v => v.party == window.partideAlese[0]);
-                                let procent = 0;
-                                if (partid != null) procent = partid.procent;
-                                fillOpacity = procent
-
-                            }
-                        } else if (window.partideAlese.length == 2) {
-                            if (feature.properties.data.votes.length >= 2) {
-                                let found = 0;
-                                for (const p of feature.properties.data.votes) {
-                                    if (p.party == window.partideAlese[0] || p.party == window.partideAlese[1]) {
-                                        fillColor = getPartyColor(p.party);
-                                        found = 1;
-                                        break;
+                                let specifiedParty = votes.find(vote => vote.party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI");
+                                
+                                if (specifiedParty) {
+                                    fillOpacity = 1;
+                                    fillColor = getPartyColor(specifiedParty.party);
+                                    if (!window.results.hasOwnProperty(specifiedParty.party)) window.results[specifiedParty.party] = { name: specifiedParty.party, UAT: 0, votes: 0 };
+                                    window.results[specifiedParty.party].UAT++;
+                                    feature.properties.data = {
+                                        totalVoturi: votes.reduce((a, b) => a + b.votes, 0),
                                     }
-                                }
-                                fillOpacity = 1;
-                                if (!found) fillOpacity = 0.05;
-                            }
-                            else {
-
-                                fillOpacity = 0.2;
-                            }
-                        }
-                        if (compareAlegeri) {
-                            if (data.hasOwnProperty(countyCode) && compData.hasOwnProperty(countyCode)) {
-                                if (data[countyCode].hasOwnProperty(name) && compData[countyCode].hasOwnProperty(name)) {
-                                    if (Object.keys(compData[countyCode][name].votes).length > 0 && Object.keys(data[countyCode][name].votes).length > 0) {
-                                        let votes = sortByValues(data[countyCode][name].votes, 'votes');
-                                        let compVotes = sortByValues(compData[countyCode][name].votes, 'votes');
-                                        if (votes[0].name.clear() == compVotes[0].name.clear()) {
-                                            fillOpacity = 0.1;
-                                        } else {
-                                            feature.properties.data.fostPrimar = `${compVotes[0].name} <br><i>${compVotes[0].party}</i>`;
-                                        }
+                                    feature.properties.data.votes = votes.map(v => {
+                                        v.percentage = (v.votes / feature.properties.data.totalVoturi * 100).toFixed(2);
+                                        v.procent = v.votes / feature.properties.data.totalVoturi;
+                                        return v;
+                                    });
+                                    for (const vote of votes) {
+                                        if (!window.results.hasOwnProperty(vote.party)) window.results[vote.party] = { name: vote.party, UAT: 0, votes: 0 };
+                                        window.results[vote.party].votes += vote.votes;
                                     }
+                                    if (feature.properties.data.votes.length == 0) feature.properties.data.votes = [{ party: "N/A", votes: 0, name: "N/A" }];
+                                } else {
+                                    feature.properties.data = { ...emptyData };
                                 }
+                            } else {
+                                feature.properties.data = { ...emptyData };
                             }
-                        }
-                        if (fillColor == "#333333" && county == "SR") {
-                            fillOpacity = 0;
-                            weight = 0;
-
+                        } else {
+                            feature.properties.data = { ...emptyData };
                         }
 
                         return {
@@ -219,7 +170,6 @@ function loadResults(alegeri) {
                             fillOpacity: 1,
                             weight: 2,
                             color: "#474646"
-
                         }
                     }
                 });
@@ -230,7 +180,6 @@ function loadResults(alegeri) {
         })
         .catch(error => {
             console.error('Error:', error);
-
             document.querySelector('#loading').style.display = "none";
             document.querySelector('#table').innerHTML = 'Inca nu exista date!';
         });
@@ -247,6 +196,13 @@ function onEachFeatureResults(feature, layer) {
 <h3>Total voturi: ${feature.properties.data?.totalVoturi.toLocaleString() ?? 'N/A'}</h3>
 ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${feature.properties.data.fostPrimar}</h3>` : ''}
 <div class="votes">`;
+
+        // Adding percentage for the specified party
+        let specifiedParty = feature.properties.data.votes.find(vote => vote.party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI");
+        if (specifiedParty) {
+            popupContent += `<h3>PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI: ${specifiedParty.percentage}%</h3>`;
+        }
+
     } catch (e) {
         console.log(feature.properties);
     }
@@ -262,7 +218,6 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
         
         </p>`
     }
-    // popupContent += JSON.stringify(feature.properties.data);
     popupContent += '</div>';
     var popup = L.popup({
         maxWidth: 700,
@@ -270,6 +225,20 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
     })
         .setContent(popupContent);
     layer.bindPopup(popup);
+
+    // Add the percentage as a label on the map
+    let specifiedParty = feature.properties.data.votes.find(vote => vote.party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI");
+    if (specifiedParty) {
+        let percentage = specifiedParty.percentage;
+        let label = L.tooltip({
+            permanent: true,
+            direction: 'center',
+            className: 'percentage-label'
+        })
+        .setContent(percentage + '%')
+        .setLatLng(layer.getBounds().getCenter());
+        layer.bindTooltip(label);
+    }
 }
 String.prototype.clip = function (n) { return this.length < n ? this : this.substring(0, n - 3) + '...' };
 function setTable() {
