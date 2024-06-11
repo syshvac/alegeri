@@ -365,6 +365,14 @@ abbr {
     padding: 4px;
     font-size: 12px;
 }
+.leaflet-tooltip.percentage-tooltip {
+    background-color: transparent;
+    border: none;
+    font-size: 12px;
+    text-shadow: 1px 1px 1px white;
+    pointer-events: none;
+}
+
 
 .leaflet-popup-content-wrapper {
     background: #EBF3F3;
