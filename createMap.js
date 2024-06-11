@@ -140,7 +140,7 @@ function loadResults(alegeri) {
                                 feature.properties.data.votes = votes.map(v => {
                                     // window.results[votes[index].party].votes += v.votes;
                                     v.percentage = (v.votes / feature.properties.data.totalVoturi * 100).toFixed(2);
-                                    v.procent = v.votes / feature.properties.data.totalVoturi;
+                                                                        v.procent = v.votes / feature.properties.data.totalVoturi;
                                     return v;
                                 });
                                 for (const vote of votes) {
@@ -196,6 +196,7 @@ function loadResults(alegeri) {
                 geoJSONLayer.addTo(map);
                 document.querySelector('#loading').style.display = "none";
                 setTable();
+                addSVGLayer();
             })
         })
         .catch(error => {
@@ -222,9 +223,7 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
     }
     for (let votes of feature.properties.data.votes) {
         let fillColor = getPartyColor(votes.party);
-        // Update popup content for the specified party
-        if (votes.party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI") {
-            popupContent += `
+        popupContent += `
             <p>
             <span class="bar" style=""><b style="width:${votes.percentage}%"></b></span>
             <span class="color" style="background-color:${fillColor}"></span>
@@ -232,7 +231,6 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
                 `<span class="nume">${votes.party}<br>${votes.votes?.toLocaleString()} Voturi - ${votes.percentage}%</span>` :
                 `<span class="nume">${votes.party}<br>${votes.name}: ${votes.votes.toLocaleString()} - ${votes.percentage}%</span>`}
             </p>`
-        }
     }
     popupContent += '</div>';
     var popup = L.popup({
@@ -242,6 +240,52 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
         .setContent(popupContent);
     layer.bindPopup(popup);
 }
+
+function addSVGLayer() {
+    const svgLayer = L.svg();
+    svgLayer.addTo(map);
+    
+    d3.select("#map").select("svg").append("g").attr("id", "svg-layer");
+
+    map.on("zoomend", updateSVG);
+    map.on("moveend", updateSVG);
+
+    updateSVG();
+}
+
+function updateSVG() {
+    const svg = d3.select("#svg-layer");
+    svg.selectAll("*").remove();
+
+    const bounds = map.getBounds();
+    const topLeft = map.latLngToLayerPoint(bounds.getNorthWest());
+    const bottomRight = map.latLngToLayerPoint(bounds.getSouthEast());
+
+    svg.attr("width", bottomRight.x - topLeft.x)
+       .attr("height", bottomRight.y - topLeft.y)
+       .style("left", `${topLeft.x}px`)
+       .style("top", `${topLeft.y}px`);
+
+    // Example of adding text percentage for each feature
+    geoJSON.eachLayer(function(layer) {
+        const center = layer.getBounds().getCenter();
+        const layerPoint = map.latLngToLayerPoint(center);
+
+        if (layer.feature.properties.data) {
+            const specificParty = layer.feature.properties.data.votes.find(vote => vote.party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI");
+            if (specificParty) {
+                svg.append("text")
+                   .attr("x", layerPoint.x - topLeft.x)
+                   .attr("y", layerPoint.y - topLeft.y)
+                   .attr("class", "svg-text")
+                   .text(`${specificParty.percentage}%`)
+                   .style("font-size", "12px")
+                   .style("fill", "black");
+            }
+        }
+    });
+}
+
 String.prototype.clip = function (n) { return this.length < n ? this : this.substring(0, n - 3) + '...' };
 function setTable(county = "") {
 
