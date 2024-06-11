@@ -234,7 +234,7 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
         popupContent += `
             <p>
             <span class="bar" style=""><b style="width:${votes.percentage}%"></b></span>
-                        <span class="color" style="background-color:${fillColor}"></span>
+            <span class="color" style="background-color:${fillColor}"></span>
             ${votes.party == votes.name ?
                 `<span class="nume">${votes.party}<br>${votes.votes?.toLocaleString()} Voturi - ${votes.percentage}%</span>` :
                 `<span class="nume">${votes.party}<br>${votes.name}: ${votes.votes.toLocaleString()} - ${votes.percentage}%</span>`}
@@ -259,7 +259,7 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
             direction: 'center',
             className: 'percentage-tooltip',
             offset: [0, 0]
-        }).openTooltip().setStyle({ color: color });
+        }).openTooltip().setStyle({ backgroundColor: color, color: 'white' });
     }
 }
 
