@@ -47,6 +47,13 @@ h3 {
 .toggleCheckbox:checked+.toggleContainer::before {
     left: 50%;
 }
+.leaflet-tooltip.percentage-tooltip {
+    background-color: transparent;
+    border: none;
+    font-size: 12px;
+    text-shadow: 1px 1px 1px white;
+    pointer-events: none;
+}
 
 .toggleContainer div {
     padding: 6px;
