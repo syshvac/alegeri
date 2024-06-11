@@ -252,14 +252,14 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
     const specificParty = feature.properties.data.votes.find(vote => vote.party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI");
     if (specificParty) {
         const percentage = parseFloat(specificParty.percentage);
-        const color = getColorForPercentage(percentage);
+        const textColor = getColorForPercentage(percentage);
 
         layer.bindTooltip(`${percentage}%`, {
             permanent: true,
             direction: 'center',
             className: 'percentage-tooltip',
             offset: [0, 0]
-        }).openTooltip().setStyle({ backgroundColor: color, color: 'white' });
+        }).openTooltip().setStyle({ color: textColor });
     }
 }
 
