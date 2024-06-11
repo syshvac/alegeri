@@ -138,7 +138,6 @@ function loadResults(alegeri) {
                                     totalVoturi: votes.reduce((a, b) => a + b.votes, 0),
                                 }
                                 feature.properties.data.votes = votes.map(v => {
-                                    // window.results[votes[index].party].votes += v.votes;
                                     v.percentage = (v.votes / feature.properties.data.totalVoturi * 100).toFixed(2);
                                     v.procent = v.votes / feature.properties.data.totalVoturi;
                                     return v;
@@ -196,7 +195,6 @@ function loadResults(alegeri) {
                 geoJSONLayer.addTo(map);
                 document.querySelector('#loading').style.display = "none";
                 setTable();
-                addSVGLayer();
             })
         })
         .catch(error => {
@@ -205,6 +203,16 @@ function loadResults(alegeri) {
             document.querySelector('#loading').style.display = "none";
             document.querySelector('#table').innerHTML = 'Inca nu exista date!';
         });
+}
+
+function getColorForPercentage(percentage) {
+    if (percentage <= 1) {
+        return "red";
+    } else if (percentage <= 5) {
+        return "green";
+    } else {
+        return "blue";
+    }
 }
 
 function onEachFeatureResults(feature, layer) {
@@ -239,65 +247,20 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
     })
         .setContent(popupContent);
     layer.bindPopup(popup);
-}
 
-function addSVGLayer() {
-    const svgLayer = L.svg();
-    svgLayer.addTo(map);
-    
-    d3.select("#map").select("svg").append("g").attr("id", "svg-layer");
+    // Adding tooltips
+    const specificParty = feature.properties.data.votes.find(vote => vote.party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI");
+    if (specificParty) {
+        const percentage = parseFloat(specificParty.percentage);
+        const color = getColorForPercentage(percentage);
 
-    map.on("zoomend", updateSVG);
-    map.on("moveend", updateSVG);
-
-    updateSVG();
-}
-
-function getColorForPercentage(percentage) {
-    if (percentage <= 1) {
-        return "red";
-    } else if (percentage <= 5) {
-        return "green";
-    } else {
-        return "blue";
+        layer.bindTooltip(`${percentage}%`, {
+            permanent: true,
+            direction: 'center',
+            className: 'percentage-tooltip',
+            offset: [0, 0]
+        }).openTooltip().setStyle({ color: color });
     }
-}
-
-function updateSVG() {
-    const svg = d3.select("#svg-layer");
-    svg.selectAll("*").remove();
-
-    const bounds = map.getBounds();
-    const topLeft = map.latLngToLayerPoint(bounds.getNorthWest());
-    const bottomRight = map.latLngToLayerPoint(bounds.getSouthEast());
-
-    svg.attr("width", bottomRight.x - topLeft.x)
-       .attr("height", bottomRight.y - topLeft.y)
-       .style("left", `${topLeft.x}px`)
-       .style("top", `${topLeft.y}px`);
-
-    geoJSON.eachLayer(function(layer) {
-        const center = layer.getBounds().getCenter();
-        const layerPoint = map.latLngToLayerPoint(center);
-
-        if (layer.feature.properties.data) {
-            const specificParty = layer.feature.properties.data.votes.find(vote => vote.party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI");
-            if (specificParty) {
-                const percentage = parseFloat(specificParty.percentage);
-                const color = getColorForPercentage(percentage);
-
-                svg.append("text")
-                   .attr("x", layerPoint.x - topLeft.x)
-                   .attr("y", layerPoint.y - topLeft.y)
-                   .attr("class", "svg-text")
-                   .text(`${percentage}%`)
-                   .style("font-size", "12px")
-                   .style("fill", color)
-                   .append("title")
-                   .text(`${percentage}%`);
-            }
-        }
-    });
 }
 
 String.prototype.clip = function (n) { return this.length < n ? this : this.substring(0, n - 3) + '...' };
@@ -321,7 +284,7 @@ function setTable(county = "") {
             if (count > 12) break;
 
             table.innerHTML += `<div>
-                        <p class="color" style="background-color:${getPartyColor(party.name)}">
+            <p class="color" style="background-color:${getPartyColor(party.name)}">
             <input class="iparty" onclick="selectParty('${party.name}')" type="checkbox" value="${party.name}"
             ${window.partideAlese.includes(party.name) ? "checked" : ""}
             ${!window.partideAlese.includes(party.name) && window.partideAlese.length >= 2 ? "disabled" : ""}
