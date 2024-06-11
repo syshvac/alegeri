@@ -54,12 +54,6 @@ h3 {
     text-shadow: 1px 1px 1px white;
     pointer-events: none;
 }
-layer.bindTooltip(`${percentage}%`, {
-    permanent: true,
-    direction: 'center',
-    className: 'percentage-tooltip',
-    offset: [0, 0]
-}).openTooltip().setStyle({ backgroundColor: color, color: 'white' });
 
 .toggleContainer div {
     padding: 6px;
