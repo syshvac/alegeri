@@ -254,15 +254,12 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
         const percentage = parseFloat(specificParty.percentage);
         const textColor = getColorForPercentage(percentage);
 
-        const tooltip = layer.bindTooltip(`${percentage}%`, {
+        layer.bindTooltip(`<span style="color: ${textColor};">${percentage}%</span>`, {
             permanent: true,
             direction: 'center',
             className: 'percentage-tooltip',
             offset: [0, 0]
         }).openTooltip();
-
-        // Apply text color directly
-        tooltip.getElement().style.color = textColor;
     }
 }
 
