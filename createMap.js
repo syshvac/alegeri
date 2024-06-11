@@ -80,6 +80,7 @@ let memFetch = async (alegeri) => {
     window.rezultateAlegeri[alegeri] = data;
     return data;
 }
+
 function loadResults(alegeri) {
     window.results = {};
     window.statsJudete = {};
@@ -206,13 +207,12 @@ function loadResults(alegeri) {
 }
 
 function getColorForPercentage(percentage) {
-    if (percentage <= 1) {
-        return "red";
-    } else if (percentage <= 5) {
-        return "green";
-    } else {
-        return "blue";
-    }
+    // Convert percentage to a value between 0 and 1
+    let normalized = Math.min(Math.max(percentage / 10, 0), 1);
+    // Calculate the color components
+    let red = Math.min(255, 255 * (1 - normalized));
+    let green = Math.min(255, 255 * normalized);
+    return `rgb(${Math.round(red)},${Math.round(green)},0)`;
 }
 
 function onEachFeatureResults(feature, layer) {
@@ -234,7 +234,7 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
         popupContent += `
             <p>
             <span class="bar" style=""><b style="width:${votes.percentage}%"></b></span>
-            <span class="color" style="background-color:${fillColor}"></span>
+                        <span class="color" style="background-color:${fillColor}"></span>
             ${votes.party == votes.name ?
                 `<span class="nume">${votes.party}<br>${votes.votes?.toLocaleString()} Voturi - ${votes.percentage}%</span>` :
                 `<span class="nume">${votes.party}<br>${votes.name}: ${votes.votes.toLocaleString()} - ${votes.percentage}%</span>`}
