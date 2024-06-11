@@ -155,8 +155,9 @@ function loadResults(alegeri) {
                                     window.statsJudete[county][votes[index].party].UAT++;
                                 }
 
-                                // Process only "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI"
-                                if (votes[index].party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI") {
+                                // Process if "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI" has at least one vote
+                                let hasVotesForSpecificParty = votes.some(vote => vote.party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI");
+                                if (hasVotesForSpecificParty) {
                                     return {
                                         fillColor: fillColor,
                                         weight: weight,
