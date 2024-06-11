@@ -140,7 +140,7 @@ function loadResults(alegeri) {
                                 feature.properties.data.votes = votes.map(v => {
                                     // window.results[votes[index].party].votes += v.votes;
                                     v.percentage = (v.votes / feature.properties.data.totalVoturi * 100).toFixed(2);
-                                                                        v.procent = v.votes / feature.properties.data.totalVoturi;
+                                    v.procent = v.votes / feature.properties.data.totalVoturi;
                                     return v;
                                 });
                                 for (const vote of votes) {
@@ -253,6 +253,16 @@ function addSVGLayer() {
     updateSVG();
 }
 
+function getColorForPercentage(percentage) {
+    if (percentage <= 1) {
+        return "red";
+    } else if (percentage <= 5) {
+        return "green";
+    } else {
+        return "blue";
+    }
+}
+
 function updateSVG() {
     const svg = d3.select("#svg-layer");
     svg.selectAll("*").remove();
@@ -266,7 +276,6 @@ function updateSVG() {
        .style("left", `${topLeft.x}px`)
        .style("top", `${topLeft.y}px`);
 
-    // Example of adding text percentage for each feature
     geoJSON.eachLayer(function(layer) {
         const center = layer.getBounds().getCenter();
         const layerPoint = map.latLngToLayerPoint(center);
@@ -274,13 +283,18 @@ function updateSVG() {
         if (layer.feature.properties.data) {
             const specificParty = layer.feature.properties.data.votes.find(vote => vote.party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI");
             if (specificParty) {
+                const percentage = parseFloat(specificParty.percentage);
+                const color = getColorForPercentage(percentage);
+
                 svg.append("text")
                    .attr("x", layerPoint.x - topLeft.x)
                    .attr("y", layerPoint.y - topLeft.y)
                    .attr("class", "svg-text")
-                   .text(`${specificParty.percentage}%`)
+                   .text(`${percentage}%`)
                    .style("font-size", "12px")
-                   .style("fill", "black");
+                   .style("fill", color)
+                   .append("title")
+                   .text(`${percentage}%`);
             }
         }
     });
@@ -307,7 +321,7 @@ function setTable(county = "") {
             if (count > 12) break;
 
             table.innerHTML += `<div>
-            <p class="color" style="background-color:${getPartyColor(party.name)}">
+                        <p class="color" style="background-color:${getPartyColor(party.name)}">
             <input class="iparty" onclick="selectParty('${party.name}')" type="checkbox" value="${party.name}"
             ${window.partideAlese.includes(party.name) ? "checked" : ""}
             ${!window.partideAlese.includes(party.name) && window.partideAlese.length >= 2 ? "disabled" : ""}
