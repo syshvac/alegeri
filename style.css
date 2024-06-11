@@ -247,6 +247,11 @@ div#unCollapse.collapsed {
     width: 75%;
 
 }
+.svg-text {
+    font-size: 12px;
+    fill: black;
+    text-anchor: middle;
+}
 
 .votes p {
     display: flex;
