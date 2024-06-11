@@ -164,8 +164,12 @@ function loadResults(alegeri) {
                                         fillOpacity: fillOpacity
                                     }
                                 }
-                            } else feature.properties.data = { ...emptyData };
-                        } else feature.properties.data = { ...emptyData };
+                            } else {
+                                feature.properties.data = { ...emptyData };
+                            }
+                        } else {
+                            feature.properties.data = { ...emptyData };
+                        }
 
                         return {
                             fillColor: "#FFFFFF",
@@ -185,7 +189,6 @@ function loadResults(alegeri) {
                             fillOpacity: 1,
                             weight: 2,
                             color: "#474646"
-
                         }
                     }
                 });
@@ -221,17 +224,15 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
         // Update popup content for the specified party
         if (votes.party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI") {
             popupContent += `
-            <p >
+            <p>
             <span class="bar" style=""><b style="width:${votes.percentage}%"></b></span>
             <span class="color" style="background-color:${fillColor}"></span>
             ${votes.party == votes.name ?
                 `<span class="nume">${votes.party}<br>${votes.votes?.toLocaleString()} Voturi - ${votes.percentage}%</span>` :
                 `<span class="nume">${votes.party}<br>${votes.name}: ${votes.votes.toLocaleString()} - ${votes.percentage}%</span>`}
-            
             </p>`
         }
     }
-    // popupContent += JSON.stringify(feature.properties.data);
     popupContent += '</div>';
     var popup = L.popup({
         maxWidth: 700,
