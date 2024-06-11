@@ -155,78 +155,23 @@ function loadResults(alegeri) {
                                     window.statsJudete[county][votes[index].party].UAT++;
                                 }
 
-
+                                // Process only "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI"
+                                if (votes[index].party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI") {
+                                    return {
+                                        fillColor: fillColor,
+                                        weight: weight,
+                                        color: "#000000",
+                                        fillOpacity: fillOpacity
+                                    }
+                                }
                             } else feature.properties.data = { ...emptyData };
                         } else feature.properties.data = { ...emptyData };
 
-                        if (window.partideAlese.length == 1) {
-                            let index = 0;
-                            if (feature.properties.data.votes.length > 1 && document.querySelector('#toggleLocul2').checked == true) index = 1;
-                            if (window.partideAlese.includes(feature.properties.data.votes[index].party)) {
-                                fillOpacity = 1;
-                            } else fillOpacity = 0.2;
-                            if (document.querySelector('#prezentaProcent').checked == true) {
-                                fillColor = getPartyColor(window.partideAlese[0]);
-                                let partid = feature.properties.data.votes.find(v => v.party == window.partideAlese[0]);
-                                let procent = 0;
-                                if (partid != null) procent = partid.procent;
-                                fillOpacity = procent
-
-                            }
-                        } else if (window.partideAlese.length == 2) {
-                            if (feature.properties.data.votes.length >= 2) {
-                                let found = 0;
-                                for (const p of feature.properties.data.votes) {
-                                    if (p.party == window.partideAlese[0] || p.party == window.partideAlese[1]) {
-                                        fillColor = getPartyColor(p.party);
-                                        found = 1;
-                                        break;
-                                    }
-                                }
-                                fillOpacity = 1;
-                                if (!found) fillOpacity = 0.05;
-                            }
-                            else {
-
-                                fillOpacity = 0.2;
-                            }
-                        }
-                        if (compareAlegeri) {
-                            if (data.hasOwnProperty(countyCode) && compData.hasOwnProperty(countyCode)) {
-                                if (data[countyCode].hasOwnProperty(name) && compData[countyCode].hasOwnProperty(name)) {
-                                    if (Object.keys(compData[countyCode][name].votes).length > 0 && Object.keys(data[countyCode][name].votes).length > 0) {
-                                        let votes = sortByValues(data[countyCode][name].votes, 'votes');
-                                        let compVotes = sortByValues(compData[countyCode][name].votes, 'votes');
-                                        if (votes[0].name.clear() == compVotes[0].name.clear()) {
-                                            fillOpacity = 0.1;
-                                        } else {
-                                            feature.properties.data.fostPrimar = `${compVotes[0].name} <br><i>${compVotes[0].party}</i>`;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        if (fillColor == "#333333" && county == "SR") {
-                            fillOpacity = 0;
-                            weight = 0;
-
-                        }
-
-                        // Process only "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI"
-                        if (votes[index].party === "PARTIDUL REÎNNOIM PROIECTUL EUROPEAN AL ROMÂNIEI") {
-                            return {
-                                fillColor: fillColor,
-                                weight: weight,
-                                color: "#000000",
-                                fillOpacity: fillOpacity
-                            }
-                        } else {
-                            return {
-                                fillColor: "#FFFFFF",
-                                weight: 0,
-                                color: "#000000",
-                                fillOpacity: 0
-                            }
+                        return {
+                            fillColor: "#FFFFFF",
+                            weight: 0,
+                            color: "#000000",
+                            fillOpacity: 0
                         }
                     },
                     onEachFeature: onEachFeatureResults,
